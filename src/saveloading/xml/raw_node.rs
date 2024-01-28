@@ -9,8 +9,9 @@ pub enum RawXmlNode {
     String(String),
     /// A boolean node.
     Boolean(String),
-    /// An integer array node.
-    IntArray(String),
+    /// An integer array node. This is stored as a vector because of how the array is stored in the save.
+    /// This will make it easier to deal with through fastxml.
+    IntArray(Vec<i32>),
 }
 
 impl RawXmlNode {
@@ -22,9 +23,11 @@ impl RawXmlNode {
             "s" => RawXmlNode::String(value.to_string()),
             "t" => RawXmlNode::Boolean("true".to_string()),
             "f" => RawXmlNode::Boolean("false".to_string()),
-            // For some reason, int arrays are stored as dicts. I don't know why.
-            "d" => RawXmlNode::IntArray(value.to_string()),
             _ => panic!("Unknown key id: {}", key_id),
         }
+    }
+
+    pub fn new_arr(value: Vec<i32>) -> Self {
+        Self::IntArray(value)
     }
 }

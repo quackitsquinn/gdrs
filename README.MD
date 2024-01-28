@@ -24,6 +24,8 @@ or, if you want gdrs to find the file for you:
 use gdrs::Level;
 
 fn main() {
+    // Theroetically, in the far future, this will be able to link to the game directly, and be able to modify levels in real time.
+    // This though, requires knowledge about hooking into the game, which I don't have.
     let mut level = Level::from_game("example level").unwrap();
     level.get_objects().iter_mut().for_each(|obj| {
         obj.x += 10.0;
