@@ -17,6 +17,20 @@ pub(crate) fn load_save_str(save_data: Vec<u8>) -> Result<String, SaveDecodeErro
     // TODO: add mac save decryption
     decode_save_bytes(save_data)
 }
+#[macro_export]
+#[cfg(debug_assertions)]
+macro_rules! dump_file {
+    ($file_name: expr, $file_data: expr) => {
+        #[cfg(debug_assertions)]
+        {
+        use std::fs::File;
+        use std::io::Write;
+
+        let mut file = File::create($file_name).unwrap();
+        file.write_all($file_data.as_bytes()).unwrap();
+        }
+    };
+}
 
 #[cfg(test)]
 mod test {
