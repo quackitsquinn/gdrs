@@ -1,5 +1,6 @@
 
 /// An unparsed XML node.
+#[derive(Debug, Clone)]
 pub enum RawXmlNode {
     /// An integer node.
     Integer(String),
@@ -13,17 +14,21 @@ pub enum RawXmlNode {
     /// This will make it easier to deal with through fastxml.
     IntArray(Vec<i32>),
 }
+/// An error that can occur while parsing a node.
+#[derive(thiserror::Error, Debug)]
+#[error("Failed to parse node")]
+pub struct UnknownTypeError(String);
 
 impl RawXmlNode {
     /// Creates a new raw xml node from a key id and a value.
-    pub fn new(key_id: &str, value: &str) -> Self {
+    pub fn new(key_id: &str, value: &str) -> Result<Self, UnknownTypeError> {
         match key_id {
-            "i" => RawXmlNode::Integer(value.to_string()),
-            "r" => RawXmlNode::Float(value.to_string()),
-            "s" => RawXmlNode::String(value.to_string()),
-            "t" => RawXmlNode::Boolean("true".to_string()),
-            "f" => RawXmlNode::Boolean("false".to_string()),
-            _ => panic!("Unknown key id: {}", key_id),
+            "i" => Ok(RawXmlNode::Integer(value.to_string())),
+            "r" => Ok(RawXmlNode::Float(value.to_string())),
+            "s" => Ok(RawXmlNode::String(value.to_string())),
+            "t" => Ok(RawXmlNode::Boolean("true".to_string())),
+            "f" => Ok(RawXmlNode::Boolean("false".to_string())),
+            _ => Err(UnknownTypeError(key_id.to_string())),
         }
     }
 
