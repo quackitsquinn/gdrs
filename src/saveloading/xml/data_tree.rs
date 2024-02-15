@@ -1,8 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
-
 use indextree::{Arena, Node, NodeId};
-
-use super::XmlNode;
 
 pub struct KeyValue<T>(pub String, pub Option<T>);
 
@@ -19,12 +15,12 @@ pub struct SaveTree<T> {
 }
 impl<T> SaveTree<T> {
     pub fn new() -> Self {
-        let mut arena: Arena<KeyValue<T>> = Arena::new();
-        let tree = SaveTree {
+        let arena: Arena<KeyValue<T>> = Arena::new();
+
+        SaveTree {
             root: arena,
             selected_node: None,
-        };
-        tree
+        }
     }
     /// Adds a child to the currently selected node, or to the root if there is no selected node.
     /// Does not select the new node.
@@ -53,7 +49,7 @@ impl<T> SaveTree<T> {
     /// Selects a node, if it exists.
     /// Returns true if the node exists and was selected, false otherwise.
     pub fn select_node(&mut self, node: NodeId) -> bool {
-        if self.root.get(node.clone()).is_some() {
+        if self.root.get(node).is_some() {
             self.selected_node = Some(node);
             true
         } else {

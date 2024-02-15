@@ -1,9 +1,4 @@
-use std::{
-    error::Error,
-    fmt::{Debug, Display},
-    fs::File,
-    io::Read,
-};
+use std::{error::Error, fmt::Debug, io::Read};
 
 use crate::saveloading::XOR_SAVE_KEY;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
@@ -21,9 +16,9 @@ pub fn decode_save_bytes(bytes: Vec<u8>) -> Result<String, SaveDecodeError> {
     // Load the bytes into a string because its a base64 string.
     let mut base64_string = String::from_utf8(xored_bytes)?;
     // Remove any nuls from the string.
-    base64_string = base64_string.replace("\u{0}", "");
+    base64_string = base64_string.replace('\u{0}', "");
     // Remove any base64 padding because its tends to be inconsistent.
-    base64_string = base64_string.replace("=", "");
+    base64_string = base64_string.replace('=', "");
     // Decode the base64 string into bytes.
     let decoded_bytes = URL_SAFE_NO_PAD.decode(base64_string.as_bytes())?;
     // lastly, we gzip expand the bytes into a string.

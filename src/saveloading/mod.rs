@@ -34,7 +34,6 @@ macro_rules! dump_file {
 
 #[cfg(test)]
 mod test {
-    use std::vec;
 
     use crate::saveloading::load_save_str;
     /// Tests loading from an actual save file.

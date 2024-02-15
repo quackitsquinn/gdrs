@@ -2,8 +2,6 @@ pub mod data_tree;
 pub mod node;
 pub(super) mod raw_node;
 
-use std::{collections::HashMap, pin};
-
 pub use node::XmlNode;
 use quick_xml::{events::Event, Reader};
 pub use raw_node::RawXmlNode;
@@ -11,7 +9,7 @@ pub use raw_node::RawXmlNode;
 use self::data_tree::SaveTree;
 
 pub fn parse_xml_tree(tree: &str) {
-    let mut dtree: SaveTree<RawXmlNode> = SaveTree::new();
+    let dtree: SaveTree<RawXmlNode> = SaveTree::new();
     let mut current_depth = 0;
     let mut current_key = String::new();
     let mut current_value = String::new();
@@ -41,16 +39,16 @@ pub fn parse_xml_tree(tree: &str) {
                 current_value = String::from_utf8(e.to_vec()).unwrap();
                 if is_key {
                     is_key = false;
-                    let last_key = dtree.get_selected_node().unwrap();
+                    let _last_key = dtree.get_selected_node().unwrap();
                     let xmlnode = RawXmlNode::new(dbg!(&last_name), dbg!(&current_value));
-                    if let Ok(node) = xmlnode {
+                    if let Ok(_node) = xmlnode {
                         // Add a child here...
                     } else {
                         println!("Failed to parse node: {:?}", xmlnode);
                     }
                 }
             }
-            Ok(Event::End(ref e)) => {
+            Ok(Event::End(ref _e)) => {
                 //let name = String::from_utf8(e.name().0.to_vec()).unwrap();
                 current_depth -= 1;
             }
