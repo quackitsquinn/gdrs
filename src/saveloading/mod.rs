@@ -23,11 +23,11 @@ macro_rules! dump_file {
     ($file_name: expr, $file_data: expr) => {
         #[cfg(debug_assertions)]
         {
-        use std::fs::File;
-        use std::io::Write;
+            use std::fs::File;
+            use std::io::Write;
 
-        let mut file = File::create($file_name).unwrap();
-        file.write_all($file_data.as_bytes()).unwrap();
+            let mut file = File::create($file_name).unwrap();
+            file.write_all($file_data.as_bytes()).unwrap();
         }
     };
 }

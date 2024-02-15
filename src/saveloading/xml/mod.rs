@@ -1,6 +1,6 @@
+pub mod data_tree;
 pub mod node;
 pub(super) mod raw_node;
-pub mod data_tree;
 
 use std::{collections::HashMap, pin};
 
@@ -20,7 +20,7 @@ pub fn parse_xml_tree(tree: &str) {
     let mut xml_parser = Reader::from_str(tree);
     let mut buf = Vec::new();
     loop {
-        match xml_parser.read_event_into(&mut buf){
+        match xml_parser.read_event_into(&mut buf) {
             Ok(Event::Start(ref e)) => {
                 let name = String::from_utf8(e.name().0.to_vec()).unwrap();
                 match name.as_str() {
@@ -29,11 +29,11 @@ pub fn parse_xml_tree(tree: &str) {
                     }
                     _ => {
                         if !is_key {
-                        last_name = name.clone();
+                            last_name = name.clone();
                         }
                     }
                 }
-    
+
                 current_depth += 1;
                 current_key = name;
             }
@@ -43,14 +43,12 @@ pub fn parse_xml_tree(tree: &str) {
                     is_key = false;
                     let last_key = dtree.get_selected_node().unwrap();
                     let xmlnode = RawXmlNode::new(dbg!(&last_name), dbg!(&current_value));
-                    if let Ok(node) = xmlnode{
+                    if let Ok(node) = xmlnode {
                         // Add a child here...
                     } else {
                         println!("Failed to parse node: {:?}", xmlnode);
-                    
                     }
                 }
-                
             }
             Ok(Event::End(ref e)) => {
                 //let name = String::from_utf8(e.name().0.to_vec()).unwrap();
@@ -58,7 +56,11 @@ pub fn parse_xml_tree(tree: &str) {
             }
 
             Ok(quick_xml::events::Event::Eof) => break,
-            Err(e) => panic!("Error at position {}: {:?}", xml_parser.buffer_position(), e),
+            Err(e) => panic!(
+                "Error at position {}: {:?}",
+                xml_parser.buffer_position(),
+                e
+            ),
             _ => {}
         }
     }

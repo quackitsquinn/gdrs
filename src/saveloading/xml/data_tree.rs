@@ -8,7 +8,7 @@ pub struct KeyValue<T>(pub String, pub Option<T>);
 
 /// A thin wrapper around an `Arena<XmlNode>` to represent a tree of XML nodes.
 /// Contains some helper methods to make it easier to work with the tree.
-/// 
+///
 /// This uses a selection paradigm, where a node can be selected and then children can be added to it.
 /// This prevents any weirdness with rc and refcell, and makes it easier to work with the tree.
 pub struct SaveTree<T> {
@@ -56,8 +56,7 @@ impl<T> SaveTree<T> {
         if self.root.get(node.clone()).is_some() {
             self.selected_node = Some(node);
             true
-        }
-        else {
+        } else {
             false
         }
     }
@@ -82,13 +81,21 @@ impl<T> SaveTree<T> {
     }
     /// Selects the parent of the currently selected node, if there is one.
     pub fn select_parent(&mut self) -> bool {
-            if let Some(node) = self.get_selected_node() {
-                if let Some(parent) = node.parent() {
-                    self.selected_node = Some(parent);
-                    return true;
-                }
+        if let Some(node) = self.get_selected_node() {
+            if let Some(parent) = node.parent() {
+                self.selected_node = Some(parent);
+                return true;
             }
+        }
         false
+    }
+    /// Returns a reference to the inner `Arena` of the tree.
+    pub fn inner(&self) -> &Arena<KeyValue<T>> {
+        &self.root
+    }
+    /// Returns a mutable reference to the inner `Arena` of the tree.
+    pub fn inner_mut(&mut self) -> &mut Arena<KeyValue<T>> {
+        &mut self.root
     }
 }
 
@@ -103,6 +110,5 @@ mod tests {
     pub fn test_tree_add_child() {
         let mut tree: super::SaveTree<u32> = super::SaveTree::new();
         tree.add_child_select("test".to_string(), Some(5));
-        
     }
 }

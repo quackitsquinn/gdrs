@@ -72,7 +72,7 @@ impl TryFrom<RawXmlNode> for XmlNode {
             RawXmlNode::Float(f) => parse!(f, f32, Float),
             RawXmlNode::String(s) => Ok(XmlNode::String(s)),
             RawXmlNode::Boolean(b) => parse!(b, bool, Boolean),
-            RawXmlNode::IntArray(a) => Ok(XmlNode::IntArray(a))
+            RawXmlNode::IntArray(a) => Ok(XmlNode::IntArray(a)),
         }
     }
 }

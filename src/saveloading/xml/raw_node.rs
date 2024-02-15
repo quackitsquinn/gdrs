@@ -1,4 +1,3 @@
-
 /// An unparsed XML node.
 #[derive(Debug, Clone)]
 pub enum RawXmlNode {

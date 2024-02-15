@@ -2,7 +2,7 @@ use std::{
     error::Error,
     fmt::{Debug, Display},
     fs::File,
-    io::{Read, Write},
+    io::Read,
 };
 
 use crate::saveloading::XOR_SAVE_KEY;
