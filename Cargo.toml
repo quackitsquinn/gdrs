@@ -8,4 +8,6 @@ edition = "2021"
 [dependencies]
 base64 = "0.21.7"
 flate2 = "1.0.28"
+indextree = "4.6.0"
+quick-xml = "0.31.0"
 thiserror = "1.0.56"
