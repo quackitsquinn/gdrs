@@ -6,7 +6,7 @@ use flate2::bufread::GzDecoder;
 
 /// Loads a save from a raw byte array. This preforms all of the steps to decode the save, but does not do any further processing.
 /// Returns a XML string of the save.
-pub fn decode_save_bytes(bytes: Vec<u8>) -> Result<String, SaveDecodeError> {
+pub fn  decode_save_bytes(bytes: Vec<u8>) -> Result<String, SaveDecodeError> {
     // The first step is to xor the bytes with the key.
     let xored_bytes = bytes
         .iter()
@@ -48,7 +48,7 @@ mod tests {
     use crate::saveloading::raw_loader::decode_save_bytes;
 
     #[test]
-    fn test_load_save_bytes() {
+    fn test_load_save_bytes() { 
         let bytes = include_bytes!("../../res/CCLocalLevels.dat").to_vec();
         let decoded = decode_save_bytes(bytes);
         assert!(

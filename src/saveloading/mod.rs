@@ -3,7 +3,6 @@ use self::raw_loader::{decode_save_bytes, SaveDecodeError};
 /// This module contains the code for loading a save from a raw byte array.
 /// It is not recommended to use this module directly, as it doesnt account for a mac save or a unencoded save.
 mod raw_loader;
-mod xml;
 
 const XOR_SAVE_KEY: u8 = 0x0B;
 
@@ -29,6 +28,27 @@ macro_rules! dump_file {
             let mut file = File::create($file_name).unwrap();
             file.write_all($file_data.as_bytes()).unwrap();
         }
+    };
+}
+/// A macro that sets up logging for tests.
+#[cfg(test)]
+#[macro_export]
+macro_rules! setup_logging {
+    ($test_name: expr) => {
+        simplelog::CombinedLogger::init(vec![
+            simplelog::TermLogger::new(
+                simplelog::LevelFilter::Debug,
+                simplelog::Config::default(),
+                simplelog::TerminalMode::Mixed,
+                simplelog::ColorChoice::Auto,
+            ),
+            simplelog::WriteLogger::new(
+                simplelog::LevelFilter::Trace,
+                simplelog::Config::default(),
+                std::fs::File::create(concat!($test_name, ".log")).unwrap(),
+            ),
+        ])
+        .unwrap();
     };
 }
 

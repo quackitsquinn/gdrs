@@ -9,5 +9,9 @@ edition = "2021"
 base64 = "0.21.7"
 flate2 = "1.0.28"
 indextree = "4.6.0"
-quick-xml = "0.31.0"
+log = "0.4.20"
 thiserror = "1.0.56"
+xml-rs = "0.8.20"
+
+[dev-dependencies]
+simplelog = "0.12.1"
