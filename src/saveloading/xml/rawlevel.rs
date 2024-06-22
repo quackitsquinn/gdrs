@@ -1,6 +1,9 @@
 use std::fmt::{self, Formatter};
 
 /// A raw level. This has no processing done on it, other than being extracted from the XML.
+///
+/// This struct does not contain all of the fields that a level can have. Most are either unused or easy to assume.
+#[derive(Default, PartialEq, Clone)]
 pub struct RawLevel {
     /// The id of the level.
     /// id: k1
@@ -19,20 +22,24 @@ pub struct RawLevel {
     /// id: k8
     /// The official song id. Will be `None` if the song is custom.
     pub song_id: Option<String>,
+    /// id: k18
+    /// Attempt count.
+    pub attempts: Option<String>,
+    // id: k19
+    pub normal_mode: Option<String>,
+    // id: k20
+    pub practice_mode: Option<String>,
+    // id: k42
+    pub original: Option<String>,
+    // id: k43
+    // TODO: See if this is still used in 2.2
+    pub two_player: Option<String>,
 }
 
 impl RawLevel {
     /// Creates a new `RawLevel` with all fields set to `None`.
     pub fn new() -> Self {
-        Self {
-            level_id: None,
-            level_name: None,
-            description_b64: None,
-            level_string: None,
-            creator: None,
-            user_id: None,
-            song_id: None,
-        }
+        Self::default()
     }
     /// Sets a key-value pair on the level. This is used to set the fields of the level.
     pub fn key_value(&mut self, key: &str, value: String) {
@@ -44,6 +51,11 @@ impl RawLevel {
             "k5" => self.creator = Some(value),
             "k6" => self.user_id = Some(value),
             "k8" => self.song_id = Some(value),
+            "k18" => self.attempts = Some(value),
+            "k19" => self.normal_mode = Some(value),
+            "k20" => self.practice_mode = Some(value),
+            "k42" => self.original = Some(value),
+            "k43" => self.two_player = Some(value),
             _ => log::warn!("Unknown key: {}", key),
         }
     }
@@ -62,6 +74,11 @@ impl fmt::Debug for RawLevel {
             .field("creator", &self.creator)
             .field("user_id", &self.user_id)
             .field("song_id", &self.song_id)
+            .field("attempts", &self.attempts)
+            .field("normal_mode", &self.normal_mode)
+            .field("practice_mode", &self.practice_mode)
+            .field("original", &self.original)
+            .field("two_player", &self.two_player)
             .finish()
     }
 }

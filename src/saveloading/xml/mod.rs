@@ -1,6 +1,6 @@
 mod rawlevel;
 
-use log::info;
+use log::trace;
 pub use rawlevel::RawLevel;
 use xml::{reader::XmlEvent, EventReader};
 
@@ -35,9 +35,11 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
         match event? {
             XmlEvent::StartElement { name, .. } => {
                 current_depth += 1;
-                info!(
+                trace!(
                     "state: {:?}, name: {:?}, depth: {}",
-                    state, name.local_name, current_depth
+                    state,
+                    name.local_name,
+                    current_depth
                 );
 
                 if name.local_name == "k" && current_depth == LEVEL_DATA_DEPTH {
@@ -60,16 +62,18 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
             }
             XmlEvent::EndElement { name } => {
                 current_depth -= 1;
-                info!(
+                trace!(
                     "state: {:?}, name: {:?}, depth: {}",
-                    state, name.local_name, current_depth
+                    state,
+                    name.local_name,
+                    current_depth
                 );
 
                 if state != ParseState::Begin
                     && state != ParseState::ParsedLevel
                     && current_depth == LEVEL_END_DEPTH
                 {
-                    info!("Adding level: {:?}", current_level);
+                    trace!("Adding level: {:?}", current_level);
                     levels.push(current_level);
                     current_level = RawLevel::new();
                     state = ParseState::ParsedLevel;
@@ -79,7 +83,7 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
                 }
             }
             XmlEvent::Characters(data) => {
-                info!(
+                trace!(
                     "state: {:?}, data: {}",
                     state,
                     &data[0..100.min(data.len())]
@@ -87,7 +91,7 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
                 if state == ParseState::InKey {
                     current_key = data;
                 } else if state == ParseState::InValue {
-                    info!("key: {}, valuelen: {}", current_key, data.len());
+                    trace!("key: {}, valuelen: {}", current_key, data.len());
                     current_level.key_value(&current_key, data);
                     state = ParseState::SeekingKey;
                 }
@@ -98,8 +102,10 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
 
     Ok(levels)
 }
-
+#[cfg(test)]
 mod tests {
+    use log::info;
+
     use crate::setup_logging;
 
     use super::*;
