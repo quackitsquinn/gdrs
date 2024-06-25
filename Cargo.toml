@@ -14,3 +14,8 @@ xml-rs = "0.8.20"
 
 [dev-dependencies]
 simplelog = "0.12.1"
+
+# Cargo flamegraph requires ---rosegment because it causes stack traces to be innacurate
+[target.x86_64-unknown-linux-gnu]
+linker = "/usr/bin/clang"
+rustflags = ["-Clink-arg=-fuse-ld=lld", "-Clink-arg=-Wl,--no-rosegment"]

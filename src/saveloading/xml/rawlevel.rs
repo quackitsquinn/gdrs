@@ -1,4 +1,9 @@
-use std::fmt::{self, Formatter};
+use std::{
+    fmt::{self, Formatter},
+    io::Write,
+};
+
+use xml::writer::XmlEvent;
 
 /// A raw level. This has no processing done on it, other than being extracted from the XML.
 ///
@@ -58,6 +63,90 @@ impl RawLevel {
             "k43" => self.two_player = Some(value),
             _ => log::warn!("Unknown key: {}", key),
         }
+    }
+    pub fn write_xml<T>(&mut self, w: &mut xml::EventWriter<T>)
+    where
+        T: Write,
+    {
+        macro_rules! write_field {
+            ($key: expr, $xml_type: expr, $value: expr) => {
+                if let Some(value) = $value.as_ref() {
+                    let key = XmlEvent::start_element("k");
+                    let txt = XmlEvent::characters($key);
+                    let end = XmlEvent::end_element();
+                    w.write(key).unwrap();
+                    w.write(txt).unwrap();
+                    w.write(end).unwrap();
+                    if $xml_type == "bool" {
+                        // Either write <T/> or <F/> </ />
+                        if value == "true" {
+                            let val = XmlEvent::start_element("t");
+                            let end = XmlEvent::end_element();
+                            w.write(val).unwrap();
+                            w.write(end).unwrap();
+                        } else {
+                            let val = XmlEvent::start_element("f");
+                            let end = XmlEvent::end_element();
+                            w.write(val).unwrap();
+                            w.write(end).unwrap();
+
+                        }
+                    } else {
+                    let val = XmlEvent::start_element($xml_type);
+                    let txt = XmlEvent::characters(&value);
+                    let end = XmlEvent::end_element();
+                    w.write(val).unwrap();
+                    w.write(txt).unwrap();
+                    w.write(end).unwrap();
+                    }
+                }
+            };
+
+            // Allow for chaining
+            ($key: expr, $xml_type: expr, $value: expr, $($rest: tt)*) => {
+                write_field!($key, $xml_type, $value);
+                write_field!($($rest)*);
+            };
+        }
+
+        write_field!(
+            "k1",
+            "i",
+            self.level_id,
+            "k2",
+            "s",
+            self.level_name,
+            "k3",
+            "s",
+            self.description_b64,
+            "k4",
+            "s",
+            self.level_string,
+            "k5",
+            "s",
+            self.creator,
+            "k6",
+            "s",
+            self.user_id,
+            "k8",
+            "s",
+            self.song_id,
+            "k18",
+            "s",
+            self.attempts,
+            "k19",
+            "s",
+            self.normal_mode,
+            "k20",
+            "s",
+            self.practice_mode,
+            "k42",
+            "s",
+            self.original,
+            "k43",
+            "s",
+            self.two_player
+        );
     }
 }
 
