@@ -1,6 +1,6 @@
 // TODO: remove this later in development when we have more code
 #![allow(dead_code)]
-mod saveloading;
+mod save;
 
 /// A macro that sets up logging for tests.
 #[cfg(test)]
