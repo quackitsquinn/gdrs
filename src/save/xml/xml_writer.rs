@@ -63,6 +63,13 @@ fn generate_footer<T>(w: &mut EventWriter<T>)
 where
     T: Write,
 {
+    // TODO: figure out what LLM_02 is
+    w.write(XmlEvent::end_element()).unwrap();
+    w.write(XmlEvent::start_element("k")).unwrap();
+    w.write(XmlEvent::characters("LLM_02")).unwrap();
+    w.write(XmlEvent::end_element()).unwrap();
+    w.write(XmlEvent::start_element("i")).unwrap();
+    w.write(XmlEvent::characters("35")).unwrap(); // magic number transplanted from my save file
     w.write(XmlEvent::end_element()).unwrap();
     w.write(XmlEvent::end_element()).unwrap();
     w.write(XmlEvent::end_element()).unwrap();
