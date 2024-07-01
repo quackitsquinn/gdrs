@@ -35,7 +35,7 @@ macro_rules! dump_file {
 #[cfg(test)]
 mod test {
 
-    use crate::saveloading::load_save_str;
+    use crate::save::load_save_str;
     /// Tests loading from an actual save file.
     #[test]
     fn test_load_save_str() {

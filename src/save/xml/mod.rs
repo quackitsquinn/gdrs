@@ -1,14 +1,15 @@
 mod rawlevel;
+mod xml_writer;
+
+use std::error;
 
 use log::trace;
 pub use rawlevel::RawLevel;
-use xml::{reader::XmlEvent, EventReader};
+use xml::{reader::XmlEvent, EventReader, EventWriter};
 
 #[derive(thiserror::Error, Debug)]
-pub enum XmlParseError {
-    #[error("An error occurred while parsing the XML: {0}")]
-    XmlError(#[from] xml::reader::Error),
-}
+#[error("{0}")]
+pub struct XmlParseError(#[from] xml::reader::Error);
 
 const LEVEL_DATA_DEPTH: usize = 5;
 const LEVEL_END_DEPTH: usize = 3;
@@ -102,12 +103,15 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
 
     Ok(levels)
 }
+
 #[cfg(test)]
 mod tests {
+    use std::{fs::File, io::Write};
+
     use log::info;
     use xml::writer::XmlEvent;
 
-    use crate::{saveloading::raw_loader::decode_save_bytes, setup_logging};
+    use crate::{save::raw_loader::decode_save_bytes, setup_logging};
 
     use super::*;
 
@@ -127,7 +131,9 @@ mod tests {
         for level in &levels {
             info!("Level: {:#?}", level);
         }
-        let mut xml_w = xml::EventWriter::new(std::io::stdout());
-        levels[0].write_xml(&mut xml_w);
+        File::create("test.xml")
+            .unwrap()
+            .write_all(xml_writer::xml_from_level_list(&levels).as_bytes())
+            .unwrap();
     }
 }

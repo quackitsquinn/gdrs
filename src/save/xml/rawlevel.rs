@@ -81,7 +81,7 @@ impl RawLevel {
             }
         }
     }
-    pub fn write_xml<T>(&mut self, w: &mut xml::EventWriter<T>)
+    pub fn write_xml<T>(&self, w: &mut xml::EventWriter<T>)
     where
         T: Write,
     {

@@ -1,12 +1,12 @@
 use std::{error::Error, fmt::Debug, io::Read};
 
-use crate::saveloading::XOR_SAVE_KEY;
+use crate::save::XOR_SAVE_KEY;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use flate2::bufread::GzDecoder;
 
 /// Loads a save from a raw byte array. This preforms all of the steps to decode the save, but does not do any further processing.
 /// Returns a XML string of the save.
-pub fn  decode_save_bytes(bytes: Vec<u8>) -> Result<String, SaveDecodeError> {
+pub fn decode_save_bytes(bytes: Vec<u8>) -> Result<String, SaveDecodeError> {
     // The first step is to xor the bytes with the key.
     let xored_bytes = bytes
         .iter()
@@ -45,10 +45,10 @@ pub enum SaveDecodeError {
 
 #[cfg(test)]
 mod tests {
-    use crate::saveloading::raw_loader::decode_save_bytes;
+    use crate::save::raw_loader::decode_save_bytes;
 
     #[test]
-    fn test_load_save_bytes() { 
+    fn test_load_save_bytes() {
         let bytes = include_bytes!("../../res/CCLocalLevels.dat").to_vec();
         let decoded = decode_save_bytes(bytes);
         assert!(
