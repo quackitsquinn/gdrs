@@ -1,9 +1,22 @@
 use std::{
+    collections::HashMap,
     fmt::{self, Formatter},
     io::Write,
 };
 
 use xml::writer::XmlEvent;
+#[derive(Debug, PartialEq, Clone)]
+pub struct UnknownField {
+    pub key: String,
+    pub value: String,
+    pub ty: String,
+}
+
+impl UnknownField {
+    pub fn new(key: String, value: String, ty: String) -> Self {
+        Self { key, value, ty }
+    }
+}
 
 /// A raw level. This has no processing done on it, other than being extracted from the XML.
 ///
@@ -39,6 +52,7 @@ pub struct RawLevel {
     // id: k43
     // TODO: See if this is still used in 2.2
     pub two_player: Option<String>,
+    pub extra: Vec<UnknownField>, // ty, value
 }
 
 impl RawLevel {
@@ -47,7 +61,7 @@ impl RawLevel {
         Self::default()
     }
     /// Sets a key-value pair on the level. This is used to set the fields of the level.
-    pub fn key_value(&mut self, key: &str, value: String) {
+    pub fn key_value(&mut self, key: &str, value: String, ty: &str) {
         match key {
             "k1" => self.level_id = Some(value),
             "k2" => self.level_name = Some(value),
@@ -61,7 +75,10 @@ impl RawLevel {
             "k20" => self.practice_mode = Some(value),
             "k42" => self.original = Some(value),
             "k43" => self.two_player = Some(value),
-            _ => log::warn!("Unknown key: {}", key),
+            _ => {
+                self.extra
+                    .push(UnknownField::new(key.to_string(), value, ty.to_string()));
+            }
         }
     }
     pub fn write_xml<T>(&mut self, w: &mut xml::EventWriter<T>)
@@ -79,7 +96,7 @@ impl RawLevel {
                     w.write(end).unwrap();
                     if $xml_type == "bool" {
                         // Either write <T/> or <F/> </ />
-                        if value == "true" {
+                        if value == &"t" {
                             let val = XmlEvent::start_element("t");
                             let end = XmlEvent::end_element();
                             w.write(val).unwrap();
@@ -89,15 +106,14 @@ impl RawLevel {
                             let end = XmlEvent::end_element();
                             w.write(val).unwrap();
                             w.write(end).unwrap();
-
                         }
                     } else {
-                    let val = XmlEvent::start_element($xml_type);
-                    let txt = XmlEvent::characters(&value);
-                    let end = XmlEvent::end_element();
-                    w.write(val).unwrap();
-                    w.write(txt).unwrap();
-                    w.write(end).unwrap();
+                        let val = XmlEvent::start_element($xml_type);
+                        let txt = XmlEvent::characters(&value);
+                        let end = XmlEvent::end_element();
+                        w.write(val).unwrap();
+                        w.write(txt).unwrap();
+                        w.write(end).unwrap();
                     }
                 }
             };
@@ -147,6 +163,14 @@ impl RawLevel {
             "s",
             self.two_player
         );
+
+        for field in &self.extra {
+            // Skip the recent tab field. This is an array that the parser does not handle, and afaik is not used.
+            if field.key == "kI6" {
+                continue;
+            }
+            write_field!(&field.key, field.ty.as_str(), Some(field.value.as_str()));
+        }
     }
 }
 
@@ -168,6 +192,7 @@ impl fmt::Debug for RawLevel {
             .field("practice_mode", &self.practice_mode)
             .field("original", &self.original)
             .field("two_player", &self.two_player)
+            .field("extras ", &self.extra)
             .finish()
     }
 }

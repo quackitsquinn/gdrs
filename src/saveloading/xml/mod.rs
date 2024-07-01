@@ -18,7 +18,7 @@ enum ParseState {
     Begin,
     InKey,
     OutKey,
-    InValue,
+    InValue(String),
     SeekingKey,
     ParsedLevel,
 }
@@ -49,13 +49,13 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
                 // Booleans are handled differently then everything else.
                 if state == ParseState::OutKey {
                     if name.local_name == "t" {
-                        current_level.key_value(&current_key, "t".to_string());
+                        current_level.key_value(&current_key, "t".to_string(), "bool");
                         state = ParseState::SeekingKey;
                     } else if name.local_name == "f" {
-                        current_level.key_value(&current_key, "f".to_string());
+                        current_level.key_value(&current_key, "f".to_string(), "bool");
                         state = ParseState::SeekingKey;
                     } else if ["i", "s", "r"].contains(&name.local_name.as_str()) {
-                        state = ParseState::InValue;
+                        state = ParseState::InValue(name.local_name.to_string());
                     }
                     continue;
                 }
@@ -90,9 +90,9 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
                 );
                 if state == ParseState::InKey {
                     current_key = data;
-                } else if state == ParseState::InValue {
+                } else if let ParseState::InValue(xml_type) = state {
                     trace!("key: {}, valuelen: {}", current_key, data.len());
-                    current_level.key_value(&current_key, data);
+                    current_level.key_value(&current_key, data, &xml_type);
                     state = ParseState::SeekingKey;
                 }
             }
@@ -105,23 +105,29 @@ pub fn parse_xml_to_level_list(xml: &str) -> Result<Vec<RawLevel>, XmlParseError
 #[cfg(test)]
 mod tests {
     use log::info;
+    use xml::writer::XmlEvent;
 
-    use crate::setup_logging;
+    use crate::{saveloading::raw_loader::decode_save_bytes, setup_logging};
 
     use super::*;
 
     #[test]
     fn test_parse_xml_to_level_list() {
         setup_logging!("xml_parse_test");
-        let xml = include_str!("../../../res/CCLocalLevels.dat.xml");
-        let levels = parse_xml_to_level_list(xml);
+        let xml = decode_save_bytes(include_bytes!("../../../res/CCLocalLevels_22.dat").to_vec())
+            .unwrap();
+        //include_str!("../../../res/CCLocalLevels.dat.xml");
+        let levels = parse_xml_to_level_list(xml.as_str());
         assert!(
             levels.is_ok(),
             "Failed to parse XML: {}",
             levels.err().unwrap()
         );
-        for level in levels.unwrap() {
-            info!("Level: {:?}", level);
+        let mut levels = levels.unwrap();
+        for level in &levels {
+            info!("Level: {:#?}", level);
         }
+        let mut xml_w = xml::EventWriter::new(std::io::stdout());
+        levels[0].write_xml(&mut xml_w);
     }
 }
